@@ -1,4 +1,4 @@
-module Data.Geometry.Types where
+module Data.Geometria.Types where
 
 import Prelude
 

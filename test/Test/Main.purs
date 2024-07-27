@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Array (head, any)
 import Data.Array (length) as Array
-import Data.Geometry
+import Data.Geometria
   ( class Analytic
   , circle
   , dot
@@ -21,14 +21,9 @@ import Data.Geometry
   , vector
   , wedge
   , (<+|)
-  , ellipse
-  , ellipseInternal
-  , residualConstant
   , moveEllipse
   , Vector(..)
-  )
-import Data.Tuple.Nested ((/\))
-  
+  )  
 import Data.Maybe (fromMaybe)
 import Data.Number (abs, sqrt)
 import Data.Sparse.Polynomial (Polynomial, (^), (:.))

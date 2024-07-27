@@ -1,10 +1,10 @@
-module Data.Geometry 
-  ( module Data.Geometry.Types
-  , module Data.Geometry.Ellipse
-  , module Data.Geometry.Space
+module Data.Geometria 
+  ( module Data.Geometria.Types
+  , module Data.Geometria.Ellipse
+  , module Data.Geometria.Space
   ) where
 
-import Data.Geometry.Types 
+import Data.Geometria.Types 
   ( class Analytic
   , class EuclideanSpace
   , class Intersectable
@@ -20,7 +20,7 @@ import Data.Geometry.Types
   , (<+|)
   )
 
-import Data.Geometry.Ellipse 
+import Data.Geometria.Ellipse 
   ( Ellipse(..)
   , cardinal, ellipse, ellipseCenter, ellipseDimensions, ellipseInternal
   , foci, fromUnitCircle, residualConstant
@@ -29,7 +29,7 @@ import Data.Geometry.Ellipse
   , mkMatrix
   )
 
-import Data.Geometry.Space
+import Data.Geometria.Space
   ( wedge
   , landing
   , land

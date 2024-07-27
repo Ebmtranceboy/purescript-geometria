@@ -1,8 +1,8 @@
-module Data.Geometry.Space where
+module Data.Geometria.Space where
 
 import Prelude
 
-import Data.Geometry.Types (Vector(..), projector)
+import Data.Geometria.Types (Vector(..), projector)
 import Data.Number (cos, sin, abs)
 import Data.Sparse.Matrix  (Matrix(..), eye, transpose, (!!))
 import Data.Sparse.Polynomial ((!), (^))

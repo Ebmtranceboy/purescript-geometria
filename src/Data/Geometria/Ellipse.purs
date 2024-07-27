@@ -1,4 +1,4 @@
-module Data.Geometry.Ellipse where
+module Data.Geometria.Ellipse where
 
 import Prelude
 
@@ -12,7 +12,7 @@ import Data.Complex
   , real
   )
 import Data.Foldable (sum)
-import Data.Geometry.Types
+import Data.Geometria.Types
   ( class Intersectable
   , Circle(..)
   , HalfLine(..)
@@ -42,7 +42,7 @@ import Data.Geometry.Types
   , (<+|)
   )
   
-import Data.Geometry.Space (revolution, wedge)
+import Data.Geometria.Space (revolution, wedge)
 import Data.Maybe (Maybe(..))
 import Data.Number (cos, sin, atan, sqrt, atan2, acos)
 import Data.Ord (abs)
