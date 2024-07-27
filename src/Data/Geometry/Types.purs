@@ -73,8 +73,8 @@ instance Analytic (Vector n) where
   index (Vector p) i = p ! i
 
 -- |
--- | Increment the dimension of a point/vector by adding a zero coordinate after
--- | the other coordinates.
+-- | Increments the dimension of a point/vector by adding a zero coordinate
+-- | after the other coordinates.
 -- |
 immerse 
   :: forall a n n1
@@ -84,7 +84,8 @@ immerse
 immerse = fromCoordinates <<< toCoordinates
 
 -- |
--- | Decrement the dimension of a point/vector by removing its last coordinate.
+-- | Decrement the dimension of a point/vector by removing its last
+-- | coordinate.
 -- |
 drain :: forall a s n n1
   . ToString n1 s 
@@ -114,8 +115,8 @@ projector (Vector n) (Vector d) =
     md =  Matrix { height: r, width: 1, coefficients: d^0 }
 
 -- |
--- | `project n d u` projects a vector u on a plane, passing through the origin and 
--- | of normal vector n, using a direction parallel to d.
+-- | `project n d u` projects a vector `u` on a plane, passing through 
+-- | the origin and of normal vector `n`, using a direction parallel to `d`.
 -- |
 project 
   :: forall n s. ToString n s => IsSymbol s 
@@ -185,7 +186,7 @@ rotated ang v =
            (index v 0 * sin ang + index v 1 * cos ang)^1
 
 -- |
--- | `projection d v` projects a vector v on a vector d.
+-- | `projection d v` projects a vector `v` on a vector `d`.
 -- |
 projection :: forall n. Vector n -> Vector n -> Vector n
 projection direction v =

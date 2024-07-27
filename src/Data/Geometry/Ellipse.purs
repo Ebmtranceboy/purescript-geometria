@@ -51,7 +51,8 @@ import Data.Sparse.Polynomial (Polynomial, (^), (!))
 import Data.Tuple.Nested ((/\), type (/\))
 import Record.Studio.Map (mapRecord)
 
--- |
+-- | 
+-- | ```
 -- |  --                                                        -- 
 -- | | ;TLDR :                                                    |
 -- | | ------                                                     |
@@ -73,76 +74,69 @@ import Record.Studio.Map (mapRecord)
 -- | | + c * (x - center.x) (y - center.y) - residualConstant(e)  |
 -- | | = 0                                                        |
 -- | |                                                            |
--- | |    THE `ellipse` FUNCTION CANNOT REPRESENT AN ELLIPSE      |
--- | |       PASSING THROUGH THE ORIGIN                           |
 -- | |                                                            |
 -- |  --                                                        --
+-- | ```
 -- |
--- |
--- |
--- |
--- | ELLIPSES
--- | ========
+-- | ## ELLIPSES
 -- | 
--- | Représentations implicites d'ellipses : 5 degrés de liberté
--- | -------------------------------------
+-- | ### Implicit ellipse representations: 5 degrees of freedom
 -- | 
--- | * Représentation en ligne de niveau:
--- |   .................................
--- | f(x,y) = ax2 + by2 + cxy + dx + ey = 1
+-- | #### Level-set representation:
+-- | `f(x,y) = ax2 + by2 + cxy + dx + ey = 1`
 -- |
--- | * Représentation par équation matricielle:
--- |   .......................................
+-- | #### Matrix equation representation:
+-- | ```
 -- |               _           _    _ _
 -- |              | a   c/2 d/2 |  | x |
 -- |      _    _  | c/2 b   e/2 |  | y |
 -- |     | x y 1| | d/2 e/2 -1  |  | 1 | = X^TAX = 0
 -- |      -    -   -           -    - -
--- |
--- | * Centrage (abandon des termes de degré 1):
--- |   ........
--- | Changements de variables: x = X+h et y = Y+k 
--- | tels que f(x,y) = g(X,Y) = aX2 + bY2 + cXY + L
--- | => [h; k] = [ec-2bd; cd-2ae] / (4ab-c2)
--- | et L = L(a,b,c,d,e,h,k) = ah2 + bk2 + chk + dh + ek.
--- | De plus, f(x,y) = 1 => aX2 + bY2 + cXY = l = 1-L.
--- | La représentation de l'ellipse peut alors se limiter à:
+-- | ```
+-- | #### Centering (abandonment of degree-1 terms):
+-- | Changes of variables: `x = X+h` and `y = Y+k` 
+-- | such that `f(x,y) = g(X,Y) = aX2 + bY2 + cXY + L`
+-- | => `[h; k] = [ec-2bd; cd-2ae] / (4ab-c2)`
+-- | and `L = L(a,b,c,d,e,h,k) = ah2 + bk2 + chk + dh + ek`.
+-- | Furthermore, `f(x,y) = 1` => `aX2 + bY2 + cXY = l = 1-L`.
+-- | Then, ellipse representation can simply be:
+-- | ```
 -- |               _       _    _ _
 -- |      _   _   | a   c/2 |  | x |
 -- |     | x y |  | c/2 b   |  | y | = X^TBX = l
 -- |      -   -    -       -    - -
--- | (cf. fonctions `ellipseInternal` et `residualConstant`)
+-- | ```
+-- | (cf. `ellipseInternal` and `residualConstant` functions)
 -- | 
--- | * Alignement (abandon du terme couplé, après centrage):
--- |   ..........
--- | Diagonalisation de B, matrice symétrique : 
--- | * une matrice diagonale D =[D00, 0; 0, D11] : 2 ddl
--- | * un angle t : 1 ddl
--- | => soit 5 ddl avec les 2 ddl du centrage.
+-- | #### Alinement (coupling term abandonment, after centering):
+-- | `B` diagonalization, with `B` symmetric matrix: 
+-- | * one diagonal matrix `D =[D00, 0; 0, D11]` : 2 degrees of freedom
+-- | * one angle `t` : 1 degree of freedom
+-- | => thus 5 degree of freedom with the 2 ones from centering.
 -- | 
--- | (cf. fonction `unCouple`)
+-- | (cf. `unCouple` function)
 -- | 
--- | Représentation explicite d'ellipses :
--- | -----------------------------------
--- | On fait correspondre à tout point (x,y) du cercle trigonométrique,
--- | un point (X,Y) de l'ellipse centrée en (h,k) par 
--- | la transformation affine :
--- | _ _   _ _   _              _  _                                 _  _ _
--- || X | | h | | cos(t) -sin(t) || s0=sqrt(|l/D00|) 0                || x |
--- || Y |=| k |+| sin(t)  cos(t) || 0                s1=sqrt(|l/D11|) || y |
--- | - -   - -   -              -  -                                 -  - -
--- | 
--- | dont la partie linéaire s'apparente à une décomposition SVD 
--- | (si, comme ici, on choisit V=Id, c'est-à-dire
--- | que les points cardinaux du cercle unité correspondent 
--- | aux points extrêmes de l'ellipse).
--- | Ainsi, inversement, à toute matrice T=USV',
--- | on peut retrouver les paramètres t, s0 et s1 en 
--- | * diagonalisant T'T
--- | * orthonormalisant ses vecteurs propres
--- | * prenant la racine carrée de ses valeurs propres.
+-- | ### Ellipses explicit representations:
+-- | Every point `(x,y)` of the unit circle is associated with
+-- | a point `(X,Y)`from the `(h,k)`-centered ellipse thanks to 
+-- | the affine transformation:
+-- | ```
+-- |  _ _   _ _   _              _  _                                 _  _ _
+-- | | X | | h | | cos(t) -sin(t) || s0=sqrt(|l/D00|) 0                || x |
+-- | | Y |=| k |+| sin(t)  cos(t) || 0                s1=sqrt(|l/D11|) || y |
+-- |  - -   - -   -              -  -                                 -  - -
+-- | ```
+-- | whose linear part is like an SVD decomposition 
+-- | (if, as it has been done here, `V` is chosen as the identity, meaning
+-- | that the four cardinal points from the unit circle correspond 
+-- | to the extreme points of the ellipse).
+-- | This way, reciprocally, `t`, `s0` and `s1` parameters
+-- | can be recovered, for every `T = USV'` matrix, by
+-- | * diagonalizing `T'T`
+-- | * orthonormalizing its eigen vectors
+-- | * taking the square root of its eigen values.
 -- |
--- | (cf. fonctions `ellipseDimensions` et `fromUnitCircle`)
+-- | (cf. `ellipseDimensions`and `fromUnitCircle` functions)
 -- | 
 
 newtype Ellipse = 
@@ -211,11 +205,11 @@ residualConstant (Ellipse el) =
 
 -- |
 -- | Equivalent to the diagonalization of the symmetric input matrix :
--- | t est l'angle de rotation autour de l'origine tel que c'=0 
+-- | `t` est l'angle de rotation autour de l'origine tel que `c'=0` 
 -- | dans la nouvelle representation:
--- | * tan(2t) = c/(a-b)
--- | * vec = matrice de rotation d'angle t
--- | * val = recip vec * m * vec = [d00, 0; 0, d11]
+-- | * `tan(2t) = c/(a-b)`
+-- | * `vec` = matrice de rotation d'angle `t`
+-- | * `val = recip vec * m * vec = [d00, 0; 0, d11]`
 -- |
 unCouple :: Ellipse -> Number /\ Number /\ Number
 unCouple (Ellipse e) =
@@ -257,8 +251,8 @@ fromUnitCircle ee@(Ellipse e) p =
     )
 
 -- |
--- | The 2 points F0 and F1 such that 
--- | MF0 + MF1 = 2 X max(units e) for every M of the ellipse.
+-- | The 2 points `F0` and `F1` such that 
+-- | `MF0 + MF1 = 2 * max(ellipseDimensions e)` for every `M` of the ellipse.
 -- |
 foci :: Ellipse -> Point 2 /\ Point 2
 foci e =
@@ -291,7 +285,10 @@ mkMatrix ps =
 -- | Extracts the relevant parts of an ellipse defined by 5 points
 -- | (all different from the origin):
 -- | symmetric 2X2 matrix /\ position of the center
+-- |
+-- | ### Computation of the parameters of an ellipse passing through the origin (`point zero`) CANNOT  be done with the `quadratic` function even if the five points are different from the origin. See in the test file how to make two translations to use it anyway. 
 -- | 
+
 quadratic :: Array (Point 2) -> Ellipse
 quadratic arr =
   let 
@@ -321,7 +318,7 @@ quadratic arr =
 
 -- |
 -- | The only ellipse tangent to the 5 sides of the polygon
--- | described by its vertices.
+-- | described by its ordered vertices.
 -- |
 brianchon :: Point 2 -> Point 2 -> Point 2 -> Point 2 -> Point 2 -> Ellipse
 brianchon a b c d e =
@@ -351,7 +348,7 @@ brianchon a b c d e =
 -- | Could also be defined with 5 points :
 -- | * the 4 cardinal points,
 -- | * a fifth point defined as
--- |   the sum of two consecutive cardinal vectors, over sqrt(2).
+-- |   the sum of two consecutive cardinal vectors, over `sqrt(2)`.
 -- |
 cardinal :: Point 2 -> Point 2 -> Number -> Ellipse
 cardinal g a mb =
@@ -392,8 +389,8 @@ rytz g i j =
 -- | * the 3 segment's middles,
 -- | * the intersection of a median and the symmetric of the opposite side
 -- |   with respect to isobarycenter and
--- | * another intersection of a median and the symmetric of the opposite side 
--- |   with respect to isobarycenter.
+-- | * another intersection of a median and the symmetric of the opposite  
+-- |   side with respect to isobarycenter.
 -- |
 steiner :: Point 2 -> Point 2 -> Point 2 -> Ellipse
 steiner p1 p2 p3 =
@@ -424,7 +421,7 @@ steiner p1 p2 p3 =
     e = g <+| vector (point zero) (manifest $ me * normalize (f1 - f2))
 
 -- |
--- | Translation adapted to the chosen representation of an ellipse .
+-- | Translation adapted to the chosen representation of an ellipse.
 -- |
 moveEllipse :: Vector 2 -> Ellipse -> Ellipse
 moveEllipse v e =
@@ -435,7 +432,7 @@ moveEllipse v e =
   in cardinal (g <+| v) (i <+| v) (length $ vector g j)
 
 -- |
--- | Rotation adapted to the chosen representation of an ellipse .
+-- | Rotation adapted to the chosen representation of an ellipse.
 -- |
 turnEllipse :: Number -> Ellipse -> Ellipse
 turnEllipse t e =
@@ -446,7 +443,7 @@ turnEllipse t e =
   in cardinal g (g <+| (rotated t $ vector g i)) (length $ vector g j)
 
 -- |
--- | Scaling adapted to the chosen representation of an ellipse .
+-- | Scaling adapted to the chosen representation of an ellipse.
 -- |
 expandEllipse :: Number /\ Number -> Ellipse -> Ellipse
 expandEllipse (kx /\ ky) e =

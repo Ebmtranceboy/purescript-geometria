@@ -7,6 +7,7 @@ import Data.Array (length) as Array
 import Data.Geometry
   ( class Analytic
   , circle
+  , dot
   , halfline
   , length
   , line
@@ -18,10 +19,16 @@ import Data.Geometry
   , segment
   , toCoordinates
   , vector
+  , wedge
   , (<+|)
+  , ellipse
+  , ellipseInternal
+  , residualConstant
+  , moveEllipse
+  , Vector(..)
   )
-
-
+import Data.Tuple.Nested ((/\))
+  
 import Data.Maybe (fromMaybe)
 import Data.Number (abs, sqrt)
 import Data.Sparse.Polynomial (Polynomial, (^), (:.))
@@ -66,21 +73,32 @@ main = do
         m2 = m1 <+| normalTo (vector p1 p2)
     roughlyAmong x = any (_ `roughly` x)
     
-    j = point $ 12.0^0 + 12.0^1
-    k = point $ 13.0^0 + 15.0^1
-    l = point $ 10.0^0 + 14.0^1
-    m = point $ 8.0^0 + 12.0^1
-    o = point $ 10.0^0 + 10.0^1
-    p = point $ 7.0^0 + 9.0^1
-    q = confidentHead $ perpendicularBisector p m `meets` perpendicularBisector m j
-    r = point $ 7.0^0+(31.0/3.0)^1
-    ell = quadratic [o, j, k, l, p]
-    set = ell `meets` circle q (length $ vector q m)
+    j = point $ 2.0^0 + 2.0^1
+    k = point $ 3.0^0 + 5.0^1
+    l = point $ 4.0^1
+    m = point $ -2.0^0 + 2.0^1
+    p = point $ -3.0^0 - 1.0^1
+    q = confidentHead $
+      perpendicularBisector p m `meets` perpendicularBisector m j
+    r = point $ (-3.0)^0+(1.0/3.0)^1
+    v = Vector $ 10.0^0+10.0^1
+    ell = moveEllipse (-v) $ quadratic $ (_ <+| v) <$> [point zero, j, k, l, p]
+    intersections = ell `meets` circle q (length $ vector q m)
   assert' "ellipse computations" $ 
-    p `roughlyAmong` set &&
-    j `roughlyAmong` set &&
-    m `roughlyAmong` set &&
-    r `roughlyAmong` set &&
-    Array.length set == 4
-  pure unit
+    p `roughlyAmong` intersections &&
+    j `roughlyAmong` intersections &&
+    m `roughlyAmong` intersections &&
+    r `roughlyAmong` intersections &&
+    Array.length intersections == 4
 
+  let
+    s = point $ 2.0^0 + 7.0^1 + 17.0^2
+    t = point $ 3.0^0 + 11.0^1 + 19.0^2
+    u = point $ 5.0^0 + 13.0^1 + 23.0^2
+    w = vector s t `wedge` vector s u
+    sw = (vector (point zero) s `dot` w)
+  assert' "spatial computations" $
+     sw `roughly` (vector (point zero) t `dot` w)
+    && sw`roughly` (vector (point zero) u `dot` w)
+    
+  pure unit

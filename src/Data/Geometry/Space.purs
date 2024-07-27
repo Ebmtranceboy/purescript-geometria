@@ -7,6 +7,9 @@ import Data.Number (cos, sin, abs)
 import Data.Sparse.Matrix  (Matrix(..), eye, transpose, (!!))
 import Data.Sparse.Polynomial ((!), (^))
 
+-- |
+-- | (3D-) Vectorial product
+-- |
 wedge :: Vector 3 -> Vector 3 -> Vector 3
 wedge (Vector u) (Vector v) =
   Vector $ 
@@ -14,6 +17,9 @@ wedge (Vector u) (Vector v) =
     + (u!2 * v!0 - u!0 * v!2)^1
     + (u!0 * v!1 - u!1 * v!0)^2
 
+-- |
+-- | Matrix used by the `land` function.
+-- |
 landing :: Vector 3 -> Matrix Number
 landing (Vector n)
   | abs (n!2 + 1.0) < 1e-9 = eye 3
@@ -30,12 +36,27 @@ landing (Vector n)
       b = n!1
       c = n!2
       
+-- |
+-- | `land n` is a 3D-rotation such that, for every 3D vector `u`
+-- | in the plane `P` of normal vector `n`, `land n u` has a constant altitude
+-- | (z-coordinate). Thanks to `land`, every computation on `P` can be
+-- | performed in 2D. The rotation matrix is obtained by the `landing` 
+-- | function, and, as it is orthogonal, the inverse transformation is simply
+-- | done by the transposed matrix.
+-- |
 land :: Vector 3 -> Vector 3 -> Vector 3
 land n (Vector u) = Vector $ v.coefficients ! 0
-  where Matrix v = landing n * Matrix { height:3, width: 1, coefficients: u^0 }
+  where 
+    Matrix v = 
+      landing n * 
+        Matrix 
+          { height:3
+          , width: 1
+          , coefficients: u^0 
+          }
 
-
--- | rotation de u d'un angle a autour de l'axe normalisé n
+-- | `revolution n a u` is the 3D-rotation of `u` of angle `a`
+-- | around the normalized axis `n`.
 revolution :: Vector 3 -> Number -> Vector 3 -> Vector 3
 revolution n a (Vector u') = Vector $ v.coefficients ! 0
   where 
