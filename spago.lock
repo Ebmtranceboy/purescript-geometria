@@ -577,8 +577,7 @@ workspace:
       z3: 0.0.2
       zipperarray: 2.0.0
   extra_packages:
-    numberfield:
-      path: ../purescript-numberfield
+    numberfield: 0.2.2
 packages:
   arrays:
     type: registry
@@ -862,8 +861,9 @@ packages:
       - tuples
       - unfoldable
   numberfield:
-    type: local
-    path: ../purescript-numberfield
+    type: registry
+    version: 0.2.2
+    integrity: sha256-6AtKqrvsIZFDvVS322B6+Z2Gua23y68mWLSROnJWJx0=
     dependencies:
       - arrays
       - foldable-traversable
