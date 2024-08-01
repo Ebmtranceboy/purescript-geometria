@@ -10,9 +10,9 @@ import Data.Geometria.Types
   , class Intersectable
   , class Metric
   , class Shape
-  , Circle(..), HalfLine(..), Line(..), Point(..), Segment(..), Vector(..)
+  , Circle(..), HalfLine(..), Line(..), Point(..), Segment(..), Vector(..), System
   , circle, halfline, line, point, segment, vector
-  , anyPoint2, anyVector2
+  , anyPoint, anyVector
   , cosAngle, dot, freeVector, fromCoordinates
   , index, length, meets, middle, normalTo, normalized
   , projection, rotated, scale, shape, system, toCoordinates, translatedBy
@@ -30,8 +30,7 @@ import Data.Geometria.Ellipse
   )
 
 import Data.Geometria.Space
-  ( wedge
-  , landing
+  ( landing
   , land
   , revolution
   )

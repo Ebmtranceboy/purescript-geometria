@@ -8,16 +8,6 @@ import Data.Sparse.Matrix  (Matrix(..), eye, transpose, (!!))
 import Data.Sparse.Polynomial ((!), (^))
 
 -- |
--- | (3D-) Vectorial product
--- |
-wedge :: Vector 3 -> Vector 3 -> Vector 3
-wedge (Vector u) (Vector v) =
-  Vector $ 
-      (u!1 * v!2 - u!2 * v!1)^0
-    + (u!2 * v!0 - u!0 * v!2)^1
-    + (u!0 * v!1 - u!1 * v!0)^2
-
--- |
 -- | Matrix used by the `land` function.
 -- |
 landing :: Vector 3 -> Matrix Number

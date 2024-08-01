@@ -8,6 +8,7 @@ workspace:
         - foldable-traversable: ">=6.0.0 <7.0.0"
         - integers: ">=6.0.0 <7.0.0"
         - maybe: ">=6.0.0 <7.0.0"
+        - numberfield: ">=0.2.2 <1.0.0"
         - numbers: ">=9.0.1 <10.0.0"
         - ordered-collections: ">=3.2.0 <4.0.0"
         - prelude: ">=6.0.1 <7.0.0"
@@ -36,6 +37,7 @@ workspace:
         - functions
         - functors
         - gen
+        - group
         - heterogeneous
         - identity
         - integers
@@ -46,6 +48,7 @@ workspace:
         - maybe
         - newtype
         - nonempty
+        - numberfield
         - numbers
         - ordered-collections
         - orders
@@ -67,11 +70,12 @@ workspace:
         - type-equality
         - typelevel-prelude
         - unfoldable
+        - unordered-collections
         - unsafe-coerce
         - variant
   package_set:
     address:
-      registry: 55.3.0
+      registry: 56.2.0
     compiler: ">=0.15.15 <0.16.0"
     content:
       abc-parser: 2.0.1
@@ -167,15 +171,15 @@ workspace:
       dotenv: 4.0.3
       droplet: 0.6.0
       dts: 1.0.0
-      dual-numbers: 1.0.2
+      dual-numbers: 1.0.3
       dynamic-buffer: 3.0.1
       echarts-simple: 0.0.1
       effect: 4.0.0
       either: 6.1.0
-      elmish: 0.12.0
+      elmish: 0.13.0
       elmish-enzyme: 0.1.1
       elmish-hooks: 0.10.3
-      elmish-html: 0.8.3
+      elmish-html: 0.9.0
       elmish-testing-library: 0.3.2
       email-validate: 7.0.0
       encoding: 0.0.9
@@ -226,7 +230,7 @@ workspace:
       generate-values: 1.0.1
       generic-router: 0.0.1
       geojson: 0.0.5
-      geometry-plane: 1.1.0
+      geometria: 2.1.0
       gojs: 0.1.1
       grain: 3.0.0
       grain-router: 3.0.0
@@ -360,7 +364,7 @@ workspace:
       now: 6.0.0
       npm-package-json: 2.0.0
       nullable: 6.0.0
-      numberfield: 0.2.0
+      numberfield: 0.2.1
       numbers: 9.0.1
       oak: 3.1.1
       oak-debug: 1.2.2
@@ -463,11 +467,11 @@ workspace:
       simple-ulid: 3.0.0
       sized-matrices: 1.0.0
       sized-vectors: 5.0.2
-      slug: 3.0.8
+      slug: 3.1.0
       small-ffi: 4.0.1
       soundfonts: 4.1.0
-      sparse-matrices: 2.0.0
-      sparse-polynomials: 3.0.0
+      sparse-matrices: 2.0.1
+      sparse-polynomials: 3.0.1
       spec: 7.6.1
       spec-discovery: 8.3.0
       spec-mocha: 5.1.1
@@ -572,7 +576,9 @@ workspace:
       yoga-tree: 1.0.0
       z3: 0.0.2
       zipperarray: 2.0.0
-  extra_packages: {}
+  extra_packages:
+    numberfield:
+      path: ../purescript-numberfield
 packages:
   arrays:
     type: registry
@@ -753,6 +759,12 @@ packages:
       - tailrec
       - tuples
       - unfoldable
+  group:
+    type: registry
+    version: 4.1.1
+    integrity: sha256-hVoKryLijrNDY2G4yRmgVvBc3pmOGD8HMaCm5zKJUXo=
+    dependencies:
+      - lists
   heterogeneous:
     type: registry
     version: 0.6.0
@@ -849,6 +861,22 @@ packages:
       - prelude
       - tuples
       - unfoldable
+  numberfield:
+    type: local
+    path: ../purescript-numberfield
+    dependencies:
+      - arrays
+      - foldable-traversable
+      - group
+      - integers
+      - maybe
+      - ordered-collections
+      - prelude
+      - rationals
+      - sparse-matrices
+      - sparse-polynomials
+      - tuples
+      - unordered-collections
   numbers:
     type: registry
     version: 9.0.1
@@ -951,8 +979,8 @@ packages:
       - unsafe-coerce
   sparse-matrices:
     type: registry
-    version: 2.0.0
-    integrity: sha256-AtRJyMPNmMUTmLkIMHslgGYVJ77RoKB7Vqe41abvBa0=
+    version: 2.0.1
+    integrity: sha256-8U+0MDE2dDgGMG7iCHJQA6XFUTmg/13KF+nAO3zCdXU=
     dependencies:
       - arrays
       - cartesian
@@ -965,8 +993,8 @@ packages:
       - tuples
   sparse-polynomials:
     type: registry
-    version: 3.0.0
-    integrity: sha256-5v9zOsNi4+ZEir513ykgYkv+uSm1Zo26gYaCXRJZW6g=
+    version: 3.0.1
+    integrity: sha256-VH1r6o//c5YfF8YTETt/b3NZ3Vfrrq2Kp7KIq3c8OLc=
     dependencies:
       - arrays
       - cartesian
@@ -1054,6 +1082,21 @@ packages:
       - partial
       - prelude
       - tuples
+  unordered-collections:
+    type: registry
+    version: 3.1.0
+    integrity: sha256-H2eQR+ylI+cljz4XzWfEbdF7ee+pnw2IZCeq69AuJ+Q=
+    dependencies:
+      - arrays
+      - enums
+      - functions
+      - integers
+      - lists
+      - prelude
+      - record
+      - tuples
+      - typelevel-prelude
+      - unfoldable
   unsafe-coerce:
     type: registry
     version: 6.0.0

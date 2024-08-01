@@ -7,6 +7,7 @@ package:
     - integers: ">=6.0.0 <7.0.0"
     - maybe: ">=6.0.0 <7.0.0"
     - numbers: ">=9.0.1 <10.0.0"
+    - numberfield: ">=0.2.2 <1.0.0"
     - ordered-collections: ">=3.2.0 <4.0.0"
     - prelude: ">=6.0.1 <7.0.0"
     - record-studio: ">=1.0.4 <2.0.0"
@@ -19,11 +20,14 @@ package:
       - assert
     main: Test.Main
   publish:
-    version: 2.1.0
+    version: 2.2.0
     license: MIT
     location:
       githubOwner: Ebmtranceboy
       githubRepo: purescript-geometria
 workspace:
   packageSet:
-    registry: 55.3.0
+    registry: 56.2.0
+  extraPackages:
+    numberfield:
+      path: "../purescript-numberfield"

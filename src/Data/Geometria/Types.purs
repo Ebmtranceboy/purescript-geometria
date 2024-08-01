@@ -2,17 +2,28 @@ module Data.Geometria.Types where
 
 import Prelude
 
-import Data.Array (filter)
+import Data.Array (filter, (..), zipWith, uncons)
+import Data.Foldable (sum, product)
 import Data.Int (fromStringAs, decimal)
 import Data.Map (intersectionWith)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Number (sqrt, cos, sin)
-import Data.Sparse.Polynomial (Polynomial(..), (:.), (!), (^))
-import Data.Sparse.Matrix (Matrix(..), eye, transpose, (!!))
+import Data.Algebraic.NumberField 
+  ( Permutation
+  , symmetric
+  , permute
+  , ptype
+  )
+import Data.Sparse.Polynomial (Polynomial(..), (:.), (!), (^), swap)
+import Data.Sparse.Matrix (Matrix(..), eye, transpose, (!!), pluSolve)
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Data.Tuple.Nested ((/\), type (/\))
 import Prim.Int (class ToString, class Add)
 import Type.Proxy (Proxy(..))
+
+signature :: Permutation -> Number
+signature =
+  product <<< (((if _ then -1.0 else 1.0) <<< (_ == 0) <<< (_ `mod` 2)) <$> _) <<< ptype
 
 class Reveal :: Int -> Constraint
 class Reveal n where
@@ -159,26 +170,50 @@ scale :: forall n. Number -> Vector n -> Vector n
 scale k (Vector v) = Vector $ k^0 * v
 
 class EuclideanSpace a where
+  -- | Scalar product
   dot :: a -> a -> Number
+  -- | Builds the n-dimensioned vector needed for the provided array of 
+  -- | (n-1) n-dimensioned independant vectors to be a R^n basis.
+  normalTo :: Array a -> a 
+ 
+instance 
+  ( ToString n s
+  , IsSymbol s
+  ) => EuclideanSpace (Vector n) where
   
+  dot (Vector (Poly p1)) (Vector (Poly p2)) 
+    = (Poly $ intersectionWith (*) p1 p2) :. 1.0
+  
+  normalTo vs' = Vector v
+    where
+      vs = (\(Vector u) -> u) <$> vs'
+      n = reveal @n
+      ref = 0..(n-1)
+      v = sum $ 
+        (\set -> 
+          case uncons (permute set ref) of
+            Just { head, tail } ->
+              ((_ * signature set) $ product $ vs `zipWith (!)` tail)^head
+            _ -> zero
+        ) <$> symmetric n
+
 class Metric a where
   length :: a -> Number
 
-instance EuclideanSpace (Vector n) where
-  dot (Vector (Poly p1)) (Vector (Poly p2)) 
-    = (Poly $ intersectionWith (*) p1 p2) :. 1.0
- 
-instance Metric (Vector n) where
+instance 
+  ( ToString n s
+  , IsSymbol s
+  ) => Metric (Vector n) where
   length v = sqrt $ v `dot` v
  
-instance Metric (Segment n) where
+instance   
+  ( ToString n s
+  , IsSymbol s
+  ) => Metric (Segment n) where
   length (Segment (p1 /\ p2)) = length $ vector p1 p2
 
-normalized :: forall n. Vector n -> Vector n
+normalized :: forall n s. ToString n s => IsSymbol s => Vector n -> Vector n
 normalized v = scale (1.0 / length v) v
-
-normalTo :: Vector 2 -> Vector 2
-normalTo v = Vector $ (- index v 1)^0 + (index v 0)^1
 
 rotated :: Number -> Vector 2 -> Vector 2
 rotated ang v =
@@ -188,30 +223,58 @@ rotated ang v =
 -- |
 -- | `projection d v` projects a vector `v` on a vector `d`.
 -- |
-projection :: forall n. Vector n -> Vector n -> Vector n
+projection :: forall n s. ToString n s => IsSymbol s => Vector n -> Vector n -> Vector n
 projection direction v =
   scale ((v `dot` direction) / (direction `dot` direction)) direction
 
-cosAngle :: forall n. Vector n -> Vector n -> Number
+cosAngle :: forall n s. ToString n s => IsSymbol s
+  => Vector n -> Vector n -> Number
 cosAngle u v = (u `dot` v) / (length u * length v)
 
-type System = Polynomial (Polynomial Number)
+type System (n :: Int) = Polynomial (Polynomial Number)
 
-system :: Line 2 -> System
+-- |
+-- | Builds the (n-1) equations needed to describe
+-- | a line of n-dimensioned points.
+-- |
+system :: forall n s. ToString n s => IsSymbol s
+  => Line n -> System n
 system (Line (m /\ n)) =
-  (index m 1 - index n 1)^0^0 +
-  (index n 0 - index m 0)^1^0 +
-  (index m 0 * index n 1 - index m 1 * index n 0)^2^0
+  sum $ term <$> 0..(r - 2)
+    where
+      r = reveal @n
+      term i =
+        (index m (i+1) - index n (i+1))^i^i +
+        (index n i - index m i)^(i+1)^i +
+        (index m i * index n (i+1) - index m (i+1) * index n i)^r^i
 
-anyPoint2 :: System -> Point 2
-anyPoint2 s = 
-  Point $ 
-    (-s!0!0 * s!0!2 / (s!0!0 * s!0!0 + s!0!1 * s!0!1))^0
-    + (-s!0!1 * s!0!2 / (s!0!0 * s!0!0 + s!0!1 * s!0!1))^1
-
-anyVector2 :: System -> Vector 2
-anyVector2 s =
-  Vector $ (-s!0!1)^0 + (s!0!0)^1
+anyPoint :: forall n s. ToString n s => IsSymbol s
+  => System n -> Point n
+anyPoint s = point $ x.coefficients!0
+  where
+    n = reveal @n
+    a = 
+      Matrix
+        { height: n
+        , width: n
+        , coefficients:
+           (swap @0 @1 $ sum $ (\i -> ((s!i) - (s!i!n)^n)^i) <$> 0..(n - 2))
+           + (let Vector v = anyVector @n s in v)^(n-1)
+        }
+    b = 
+      Matrix
+        { height: n
+        , width: 1
+        , coefficients:
+            sum $ (\i -> (-(s!i!n)^i)^0) <$> 0..(n - 2)
+        }
+    Matrix x = pluSolve a b
+  
+anyVector :: forall @n s. ToString n s => IsSymbol s => System n -> Vector n
+anyVector s =
+  normalTo $ (\i -> Vector $ (s!i) - (s!i!n)^n) <$> 0..(n - 2)
+    where
+      n = reveal @n
 
 class Intersectable a b where
   meets :: a -> b -> Array (Point 2)
@@ -266,7 +329,7 @@ instance Intersectable Circle (HalfLine 2) where
   meets c hl = meets hl c
 
 instance Intersectable Circle Circle where
-  meets (Circle (c0 /\ _r0)) c@(Circle (c1 /\ _r1)) = c `meets` l
+  meets (Circle (c0 /\ r0)) c@(Circle (c1 /\ r1)) = c `meets` l
     where
       x0 = index c0 0
       y0 = index c0 1
@@ -275,11 +338,12 @@ instance Intersectable Circle Circle where
       sys = 
         (2.0 * (x0-x1))^0^0
         + (2.0 * (y0-y1))^1^0
-        + (x1 * x1 - x0 * x0
-          + y1 * y1 - y0 * y0)^2^0
-      p = anyPoint2 sys
-      l = Line $ p /\ (p <+| anyVector2 sys)
-      
+        + ( x1 * x1 - x0 * x0
+          + y1 * y1 - y0 * y0
+          + r0 * r0 - r1 * r1
+          )^2^0
+      p = anyPoint sys :: Point 2
+      l = Line $ p /\ (p <+| anyVector sys)
 
 instance Intersectable (HalfLine 2) (HalfLine 2) where
   meets (HalfLine (origin /\ direction)) hl =

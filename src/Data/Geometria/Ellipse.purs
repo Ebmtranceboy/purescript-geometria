@@ -42,7 +42,7 @@ import Data.Geometria.Types
   , (<+|)
   )
   
-import Data.Geometria.Space (revolution, wedge)
+import Data.Geometria.Space (revolution)
 import Data.Maybe (Maybe(..))
 import Data.Number (cos, sin, atan, sqrt, atan2, acos)
 import Data.Ord (abs)
@@ -366,7 +366,7 @@ rytz :: Point 2 -> Point 2 -> Point 2 -> Ellipse
 rytz g i j =
   cardinal g a mb where
     gj = vector g j
-    k = g <+| normalTo gj
+    k = g <+| normalTo [gj]
     l = middle $ segment i k
     radius = length $ vector l g
     ms = circle l radius `meets` line i k
@@ -610,7 +610,7 @@ instance Intersectable Ellipse Ellipse where
         >>> rotated ang3
         >>> (_ - vec3)
         >>> (immerse :: Vector 2 -> Vector 3)
-        >>> project (wedge step2.a1 step2.b1) z
+        >>> project (normalTo [step2.a1, step2.b1]) z
         >>> revolution vec1 (-ang1)
         >>> (_ - vec0)
         >>> (drain :: Vector 3 -> Vector 2)
