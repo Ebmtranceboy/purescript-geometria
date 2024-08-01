@@ -29,5 +29,4 @@ workspace:
   packageSet:
     registry: 56.2.0
   extraPackages:
-    numberfield:
-      path: "../purescript-numberfield"
+    numberfield: 0.2.2
